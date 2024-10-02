@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import org.redis.protocol.ProtocolDeserializer;
+
 
 public class ConnectionHandler extends Thread{ 
     private final Socket socket;
@@ -19,8 +21,13 @@ public class ConnectionHandler extends Thread{
         try {
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());
             OutputStream outputStream = socket.getOutputStream();
-
-            System.out.println("Connection established");
+            ProtocolDeserializer des = new ProtocolDeserializer();
+            while(true){
+                Pair pair = des.parseInput(inputStream);
+                System.out.println(pair.left + " " + pair.right);
+                System.out.println("Connection established");
+            }
+            
 
         }
         catch(IOException ex) { 
