@@ -14,7 +14,7 @@ public class Redis {
             while(true) { 
                 Socket sock = socket.accept(); 
                 ConnectionHandler handler = new ConnectionHandler(sock);
-                handler.run();
+                handler.start();
             }
 
         }

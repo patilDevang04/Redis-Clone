@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 
-public class ConnectionHandler{ 
+public class ConnectionHandler extends Thread{ 
     private final Socket socket;
 
 
