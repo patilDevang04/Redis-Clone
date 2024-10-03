@@ -23,7 +23,7 @@ public class ConnectionHandler extends Thread{
             OutputStream outputStream = socket.getOutputStream();
             ProtocolDeserializer des = new ProtocolDeserializer();
             while(true){
-                Pair pair = des.parseInput(inputStream);
+                Pair<String, Long> pair = des.parseInput(inputStream);
                 System.out.println(pair.left + " " + pair.right);
                 System.out.println("Connection established");
             }

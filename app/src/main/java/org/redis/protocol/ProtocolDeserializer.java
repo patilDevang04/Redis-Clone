@@ -14,7 +14,7 @@ public class ProtocolDeserializer {
 
     public Pair<String, Long> parseInput(DataInputStream inputStream) {
         try {
-            char c = (char) readByteWithDebug(inputStream);
+            char c = (char) readByte(inputStream);
 
             var parsedResult = switch (c) {
                 case '*' -> parseArray(inputStream);
@@ -46,12 +46,12 @@ public class ProtocolDeserializer {
         long bytesCounter = parsedResult.right;
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < parsedResult.left; i++) {
-            stringBuilder.append((char) readByteWithDebug(inputStream));
+            stringBuilder.append((char) readByte(inputStream));
             bytesCounter++;
         }
         
-        readByteWithDebug(inputStream); // skip terminating '\r'
-        readByteWithDebug(inputStream); // skip terminating '\n'
+        readByte(inputStream); // skip terminating '\r'
+        readByte(inputStream); // skip terminating '\n'
         bytesCounter += 2;
         return new Pair<>(stringBuilder.toString(), bytesCounter);
     }
@@ -59,15 +59,15 @@ public class ProtocolDeserializer {
     private Pair<String, Long> parseSimpleString(DataInputStream inputStream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         long bytesCount = 0L;
-        byte b = readByteWithDebug(inputStream);
+        byte b = readByte(inputStream);
         bytesCount++;
         while (b != 13) { // 13 means '\r'
             buffer.write(b);
-            b = readByteWithDebug(inputStream);
+            b = readByte(inputStream);
             bytesCount++;
         }
         
-        readByteWithDebug(inputStream);
+        readByte(inputStream);
         bytesCount++;
 
         return new Pair<>(buffer.toString(), bytesCount);
@@ -78,7 +78,7 @@ public class ProtocolDeserializer {
         return new Pair<>(Integer.parseInt(parsedResult.left), parsedResult.right);
     }
 
-    private byte readByteWithDebug(DataInputStream inputStream) throws IOException {
+    private byte readByte(DataInputStream inputStream) throws IOException {
         byte b = inputStream.readByte();
         System.out.println(Thread.currentThread().getName() + ": Got byte: " + b);
         return b;
