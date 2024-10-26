@@ -4,16 +4,23 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import org.redis.commands.*;
 
+
+import org.redis.config.ObjectFactory;
 import org.redis.protocol.ProtocolDeserializer;
 
 
 public class ConnectionHandler extends Thread{ 
     private final Socket socket;
+    private final ProtocolDeserializer protocolDeserializer;
+    private final CommandFactory commandFactory;
 
-
-    public ConnectionHandler(Socket socket) {
+    public ConnectionHandler(Socket socket, ObjectFactory objectFactory) {
         this.socket = socket;
+        protocolDeserializer = objectFactory.getProtocolDeserializer();
+        commandFactory = objectFactory.getCommandFactory();
+
     }
 
 
@@ -23,9 +30,17 @@ public class ConnectionHandler extends Thread{
             OutputStream outputStream = socket.getOutputStream();
             ProtocolDeserializer des = new ProtocolDeserializer();
             while(true){
-                Pair<String, Long> pair = des.parseInput(inputStream);
-                System.out.println(pair.left + " " + pair.right);
-                System.out.println("Connection established");
+                Pair<String, Long> stringLongPair = protocolDeserializer.parseInput(inputStream);
+                String commandString = stringLongPair.left;
+
+                String[] arguments = commandString.split(" ");
+                String command = arguments[0].toUpperCase();
+                Handler handler = commandFactory.getCommandHandler(command);
+                byte[] response = handler.handle(arguments);
+
+                outputStream.write(response);
+                outputStream.flush();
+
             }
             
 
